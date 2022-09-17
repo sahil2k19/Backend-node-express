@@ -255,8 +255,151 @@ module.exports.home = function(req,res){
 }
 
 ```
+#
+#
 
 
+# Partials in Views
+
+#### Partials are views that are designed to be used from within other views.
+
+But in our case we need to create partials for header and footer.\
+So that we `dont have to copy whole code again and again`.
+
+
+### Partials are created in `Views` folder 
+So we need to create 2 partials for that:-\
+## `_header.ejs`
+## `_footer.ejs`
+We add `(_)underscore` as a naming convention.\
+Just to differetiate it with other views.
+
+```
+inside views-> _footer.ejs
+
+<footer>
+    Page footer
+</footer>
+
+------------------------------------------------------
+
+inside views-> _header.ejs
+
+<header>
+    Page header
+</header>
+
+```
+It will not automatic add to the ejs->other file\
+we need to mention that where to use.
+
+### For that we use :-
+### `<%-include ('_header'); %>` 
+### `<%-include ('_footer'); %>` 
+
+We just replace these code with whole code of header and footer
+#
+#
+# Creating Layouts 
+#### This Embedded JavaScript file acts as the default layout for all server side views rendered by your app.
+
+We need to use a library : `Express-ejs-layouts`
+
+For that we need to install that using command `npm install express-ejs-layouts`\
+After that create a file in `views.ejs` -> `layout.ejs`
+
+### In `main-> index.js` 
+```
+const expressLayouts = require('express-ejs-layouts');
+
+app.use(expressLayouts);
+```
+
+### In `views-> layout.ejs`
+```
+<body>
+    <!------------ this is partial------------------->
+    <%- include ('_header') %>
+
+
+        <%- body %>
+
+            <!-- this is partial -->
+            <%- include('_footer') %>
+                <%- script %>
+</body>
+
+```
+On above code `<%- body %>` is variable part of body which changes dynamically\
+After that we can remove all the code of other ejs file as our `Layouts` is set \
+So our code will look like this :-
+
+```
+views-> home.ejs
+
+<h1>
+    Codiel / <%= title%>
+</h1>
+
+
+```
+Yes just like above code nothing else 
+
+#
+#
+#
+## Setting Up Static File access
+Create folder -> `assets`\
+Here we create ->\
+-> `css(folder)`-> `style.css`  \
+-> `script` folder\
+-> 
+```
+main-> index.js
+----------------------------------------
+
+app.use(exress.static('./assets'));
+
+
+
+views-> layout.ejs-> 
+----------------------------------------
+<link rel="stylesheet" href ="/css/layout.css">
+```
+On above `layout.ejs` code we just simply mention the css file ,\
+as we mention the whole path in `index.js`
+#
+#
+
+## Linking our MongoDb
+First of all we need to install mongoose
+
+`npm install mongoose `
+
+create a file under `config`folder name `mongoose.js`
+
+```
+main-> index.js->
+------------------------------------
+const db = require('./config/mongoose')
+
+
+config-> mongoose.js->
+-------------------------------
+
+
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/codeial_development');
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, "Error connecting MongoDb"));
+
+db.once('open', function(){
+    console.log('connected to database :: MongoDb')
+});
+module.exports = db;
+```
 
 
 
