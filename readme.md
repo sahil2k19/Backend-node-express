@@ -441,7 +441,7 @@ module.exports =User;
 In `userSchema` we create key-value pair to define property\
 and inside the `email` property we define another property(as we need email to be `unique`)\
 Here in Schema there are 2 field 
-### `const userSchema = new mongoose.Schema({property}, {timesstamps}); `
+#### `const userSchema = new mongoose.Schema({property}, {timesstamps}); `
 
 
 
