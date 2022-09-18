@@ -6,7 +6,6 @@
 ```
 Directory -> Express -> Git -> Routers & Controllers -> view Engine
 Partial & Layouts -> Static files -> MongoDB
-
 ```
 
 
@@ -400,6 +399,49 @@ db.once('open', function(){
 });
 module.exports = db;
 ```
+#
+#
+# Manual Authentication :-
+
+#### POST-> Verify Identity-> Store Identity Token In  Browser(Using Cookies)
+
+#### -> Serve User Specific Data-> Delete Token on Sign out
+
+## Step 1 Creating User
+For that we need to create `user.js` in `models` folder\
+And inside that we need to create a `SCHEMA`
+```
+const mongoose  = require('mongoose');
+
+const userSchema  = new mongoose.Schema({
+    email:{
+        type:String,
+        required:true,
+        unique:true,
+    },
+    password:{
+        type:String,
+        required:true,
+
+    },
+    name:{
+        type:String,
+        required:true, 
+    }
+
+}, {
+    timesstamps:true,
+});
+
+const User = mongoose.model('User' ,userSchema);
+
+module.exports =User;
+
+```
+In `userSchema` we create key-value pair to define property\
+and inside the `email` property we define another property(as we need email to be `unique`)\
+Here in Schema there are 2 field 
+### `const userSchema = new mongoose.Schema({property}, {timesstamps}); `
 
 
 
@@ -412,32 +454,10 @@ module.exports = db;
 #
 #
 #
-##
 #
 #
 #
 ##
-#
-#
-#
-##
-#
-#
-#
-##
-#
-#
-#
-##
-#
-#
-#
-##
-#
-#
-#
-##
-#
 #
 #
 #
