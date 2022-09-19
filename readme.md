@@ -442,22 +442,139 @@ In `userSchema` we create key-value pair to define property\
 and inside the `email` property we define another property(as we need email to be `unique`)\
 Here in Schema there are 2 field 
 #### `const userSchema = new mongoose.Schema({property}, {timesstamps}); `
+Now we need to tell what would be the name of collection(model) of this schema\
+whenever we create model name or collection name we should always uppercase first letter(naming convenction)\
+`const User = mongoose.model('User', userSchema);`\
+here `User` is the name of collection(model) of this Schema.
+#
+#
+## Rendering pages for Sign_Up and Sign_In
+
+For rendering these pages we have to create 2 views in `views` folder
+#### -> `user_sign_in.ejs` and `user_sign_up.ejs`
+To render these pages we need to have some **`controllers`** 
+
+Now in controller we need to add couple of actions.
+```
+-----------------render the singUp page-----------------------
+
+module.exports.signUp = function(res, req){
+    return res.render('user_sign_up', {
+        title:"codeial | signUp
+    })
+}
+
+----------------render the singIn page-------------------------
+
+module.exports.signIn = function(res, req){
+    return res.render('user_sign_In', {
+        title:"codeial | signIn",
+    })
+}
+
+```
+Now we need routes 
+
+```
+routes-> user.js-> 
+
+router.get('/sign-up', userController.signUp);
+router.get('/sign-in', userController.signIn);
+
+
+```
+#
+#
+## Creating Form for Sign_In and Sign_Up
+```
+views-> user-sign-in.ejs-> 
+
+<form action="/users/create-session" method="POST">
+
+    <input type="email" name='email' placeholder="your email" required>
+    <input type="password" name='password' placeholder="your password" required>
+
+    <input type="submit" value="Sign In">
+</form>
+-------------------------------------------------------------
+views-> user-sign-up.ejs->
+
+<form action="/users/create" method="POST">
+    <input type="text" name='name' placeholder="YOUR Name" required>
+    <input type="email" name='email' placeholder="your email" required>
+    <input type="password" name='password' placeholder="your password" required>
+    <input type="password" name='confirm_password' placeholder="confirm password" required>
+    <input type="submit" value="Sign Up">
+</form>
+```
+
+### Now in `controller`-> `user.js` :-
+```
+//get the signup data
+module.exports.create = function (req, res) {
+    //todo later;
+}
+
+
+//get the signin and create session for users
+module.exports.createSession = function (req, res) {
+    //todo later;
+}
+
+```
+#
+#
+## Creating and Altering a Cookie
+Reading writing to a cookie we use a library cookie parser
+
+```
+npm install cookie-parser
+
+```
+```
+main-> index.js
+
+const cookieParser = require('cookie-parser');  
+```
+Now we tell the app to use it.\
+We tell it in middleware.
+```
+app.use(express.urlencoded()); //reading through post request
+
+app.use(cookieParser()); // setting cookie parser
+
+```
+In `home_controller` 
+```
+module.export.home = function(req,res){
+    console.log(req.cookie); //print cookie
+    res.cookie('user_id',25); //Manually changing the value
+}
+```
+
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+   .
+  
+  
 
 
 
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-##
-#
-#
-#
