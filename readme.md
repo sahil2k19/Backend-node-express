@@ -586,14 +586,64 @@ const localStrategy = require('passport-local').Strategy;
 we need to tell Passport that we will use passport-local-strategy
 
 ```
+config-> passport-local-strategy.js->
+
+// import user
+const User = require('../models/user')
+
+
+// authentication using passport
 
 passport.use(new localStrategy({
     usernameField:'email', // we make email unique
     },
-    function(email,password, done){
+    function(email,password, done){ //callback function 
 
+        //find user and establish a identity
+
+        User.findOne({email:'email'},function(err,user){
+
+            // if error
+            if(err){ 
+                console.log('Error in finding -> Passport.js');
+                return done( err); 
+            }
+
+            // no error but user not found 
+            if(!user || user.password != password){
+                console.log('Invalid username/password');
+                return done(null, false);
+            }
+
+            // if user found 
+            return done(null, user);
+        });
     }
 ));
+
+// serializing the user to decide which key is to be kept in the Cookies
+
+passport.serializeUser(function(user,done){
+    done(null, user.id); // store userId encrypted format
+})
+
+
+// deserializing the user from the key in the cookies  
+
+passport.deserializeUser(function(id,done){
+
+    User.findById(id,function(err,user){
+        if(err){
+            console.log('error in finding user --> Passport');
+            return done(err);
+        }
+        return done(null,user);
+    });
+});
+
+//exporting
+module.exports = passport; 
+
 ```
 
 
