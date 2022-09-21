@@ -646,6 +646,51 @@ module.exports = passport;
 
 ```
 
+#
+#
+## Express sessions and Passport for Authentication
+
+We need to install `express-session`
+``` 
+npm install express-session 
+
+```
+Now we use `express-session`
+
+```
+main->index.js->
+
+// used for session cookies
+
+const session = require('express-session');
+const passport  = require('passport');
+const passportLocal = require('./config/passport-local-strategy')
+
+```
+Now we need to add a middleware which takes session cookies and `encrypt` that.\
+We add it after the `view Engine` setup.
+
+```
+// tell app to use 'session'
+
+app.use(session({
+    name:'codeial',
+    //todo change the secret before deployment in production mode
+    secret:'blahsomething',
+    saveUninitialized: false,
+    resave:false,
+    cookie:{
+        maxAge:(1000*60*100),
+    }
+}))
+
+// tell app to use 'passport'
+
+app.use(passport.initialize());
+
+app.use(passport.session());
+```
+
 
 
 \
