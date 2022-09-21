@@ -510,16 +510,31 @@ views-> user-sign-up.ejs->
 
 ### Now in `controller`-> `user.js` :-
 ```
-//get the signup data
+//render sign-up page
+module.exports.signUp = function (req, res) {
+    return res.render('user-sign-up', {
+        title: "codeial | signUp",
+    })
+}
+
+
+//render sign-in page 
+module.exports.signIn = function (req, res) {
+    return res.render('user-sign-in', {
+        title: "codeial | signIn",
+    })
+}
+
+//get the sign-up data
 module.exports.create = function (req, res) {
-    //todo later;
+    //todo later
+}
+ 
+// sign in and create session for the user
+module.exports.createSession = function(req,res){
+    //todo later
 }
 
-
-//get the signin and create session for users
-module.exports.createSession = function (req, res) {
-    //todo later;
-}
 
 ```
 #
@@ -539,7 +554,7 @@ const cookieParser = require('cookie-parser');
 Now we tell the app to use it.\
 We tell it in middleware.
 ```
-app.use(express.urlencoded()); //reading through post request
+app.use(express.urlencoded({extended:false })); //reading through post request
 
 app.use(cookieParser()); // setting cookie parser
 
@@ -551,6 +566,37 @@ module.export.home = function(req,res){
     res.cookie('user_id',25); //Manually changing the value
 }
 ```
+#
+#
+# Authentication using Passport:-
+Passport.js is a middleware which authenticates user requests.\
+When authentication succeeds a session for the signed-in user is established, and the next function in the stack is called.\
+This next function is typically application-specific logic which will process the request.
+
+## Installing Passport
+``` 
+npm install passport
+npm install passport-local
+```
+#### `config-> passport-local-strategy.js`
+```
+const passport  = require('passport');
+const localStrategy = require('passport-local').Strategy;
+```
+we need to tell Passport that we will use passport-local-strategy
+
+```
+
+passport.use(new localStrategy({
+    usernameField:'email', // we make email unique
+    },
+    function(email,password, done){
+
+    }
+));
+```
+
+
 
 \
 \
