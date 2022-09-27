@@ -6,7 +6,6 @@
 ```
 Directory -> Express -> Git -> Routers & Controllers -> view Engine
 Partial & Layouts -> Static files -> MongoDB
-
 ```
 
 
@@ -400,44 +399,323 @@ db.once('open', function(){
 });
 module.exports = db;
 ```
+#
+#
+# Manual Authentication :-
+
+#### POST-> Verify Identity-> Store Identity Token In  Browser(Using Cookies)
+
+#### -> Serve User Specific Data-> Delete Token on Sign out
+
+## Step 1 Creating User
+For that we need to create `user.js` in `models` folder\
+And inside that we need to create a `SCHEMA`
+```
+const mongoose  = require('mongoose');
+
+const userSchema  = new mongoose.Schema({
+    email:{
+        type:String,
+        required:true,
+        unique:true,
+    },
+    password:{
+        type:String,
+        required:true,
+
+    },
+    name:{
+        type:String,
+        required:true, 
+    }
+
+}, {
+    timesstamps:true,
+});
+
+const User = mongoose.model('User' ,userSchema);
+
+module.exports =User;
+
+```
+In `userSchema` we create key-value pair to define property\
+and inside the `email` property we define another property(as we need email to be `unique`)\
+Here in Schema there are 2 field 
+#### `const userSchema = new mongoose.Schema({property}, {timesstamps}); `
+Now we need to tell what would be the name of collection(model) of this schema\
+whenever we create model name or collection name we should always uppercase first letter(naming convenction)\
+`const User = mongoose.model('User', userSchema);`\
+here `User` is the name of collection(model) of this Schema.
+#
+#
+## Rendering pages for Sign_Up and Sign_In
+
+For rendering these pages we have to create 2 views in `views` folder
+#### -> `user_sign_in.ejs` and `user_sign_up.ejs`
+To render these pages we need to have some **`controllers`** 
+
+Now in controller we need to add couple of actions.
+```
+-----------------render the singUp page-----------------------
+
+module.exports.signUp = function(res, req){
+    return res.render('user_sign_up', {
+        title:"codeial | signUp
+    })
+}
+
+----------------render the singIn page-------------------------
+
+module.exports.signIn = function(res, req){
+    return res.render('user_sign_In', {
+        title:"codeial | signIn",
+    })
+}
+
+```
+Now we need routes 
+
+```
+routes-> user.js-> 
+
+router.get('/sign-up', userController.signUp);
+router.get('/sign-in', userController.signIn);
+
+
+```
+#
+#
+## Creating Form for Sign_In and Sign_Up
+```
+views-> user-sign-in.ejs-> 
+
+<form action="/users/create-session" method="POST">
+
+    <input type="email" name='email' placeholder="your email" required>
+    <input type="password" name='password' placeholder="your password" required>
+
+    <input type="submit" value="Sign In">
+</form>
+-------------------------------------------------------------
+views-> user-sign-up.ejs->
+
+<form action="/users/create" method="POST">
+    <input type="text" name='name' placeholder="YOUR Name" required>
+    <input type="email" name='email' placeholder="your email" required>
+    <input type="password" name='password' placeholder="your password" required>
+    <input type="password" name='confirm_password' placeholder="confirm password" required>
+    <input type="submit" value="Sign Up">
+</form>
+```
+
+### Now in `controller`-> `user.js` :-
+```
+//render sign-up page
+module.exports.signUp = function (req, res) {
+    return res.render('user-sign-up', {
+        title: "codeial | signUp",
+    })
+}
+
+
+//render sign-in page 
+module.exports.signIn = function (req, res) {
+    return res.render('user-sign-in', {
+        title: "codeial | signIn",
+    })
+}
+
+//get the sign-up data
+module.exports.create = function (req, res) {
+    //todo later
+}
+ 
+// sign in and create session for the user
+module.exports.createSession = function(req,res){
+    //todo later
+}
+
+
+```
+#
+#
+## Creating and Altering a Cookie
+Reading writing to a cookie we use a library cookie parser
+
+```
+npm install cookie-parser
+
+```
+```
+main-> index.js
+
+const cookieParser = require('cookie-parser');  
+```
+Now we tell the app to use it.\
+We tell it in middleware.
+```
+app.use(express.urlencoded({extended:false })); //reading through post request
+
+app.use(cookieParser()); // setting cookie parser
+
+```
+In `home_controller` 
+```
+module.export.home = function(req,res){
+    console.log(req.cookie); //print cookie
+    res.cookie('user_id',25); //Manually changing the value
+}
+```
+#
+#
+# Authentication using Passport:-
+Passport.js is a middleware which authenticates user requests.\
+When authentication succeeds a session for the signed-in user is established, and the next function in the stack is called.\
+This next function is typically application-specific logic which will process the request.
+
+## Installing Passport
+``` 
+npm install passport
+npm install passport-local
+```
+#### `config-> passport-local-strategy.js`
+```
+const passport  = require('passport');
+const localStrategy = require('passport-local').Strategy;
+```
+we need to tell Passport that we will use passport-local-strategy
+
+```
+config-> passport-local-strategy.js->
+
+// import user
+const User = require('../models/user')
+
+
+// authentication using passport
+
+passport.use(new localStrategy({
+    usernameField:'email', // we make email unique
+    },
+    function(email,password, done){ //callback function 
+
+        //find user and establish a identity
+
+        User.findOne({email:'email'},function(err,user){
+
+            // if error
+            if(err){ 
+                console.log('Error in finding -> Passport.js');
+                return done( err); 
+            }
+
+            // no error but user not found 
+            if(!user || user.password != password){
+                console.log('Invalid username/password');
+                return done(null, false);
+            }
+
+            // if user found 
+            return done(null, user);
+        });
+    }
+));
+
+// serializing the user to decide which key is to be kept in the Cookies
+
+passport.serializeUser(function(user,done){
+    done(null, user.id); // store userId encrypted format
+})
+
+
+// deserializing the user from the key in the cookies  
+
+passport.deserializeUser(function(id,done){
+
+    User.findById(id,function(err,user){
+        if(err){
+            console.log('error in finding user --> Passport');
+            return done(err);
+        }
+        return done(null,user);
+    });
+});
+
+//exporting
+module.exports = passport; 
+
+```
+
+#
+#
+## Express sessions and Passport for Authentication
+
+We need to install `express-session`
+``` 
+npm install express-session 
+
+```
+Now we use `express-session`
+
+```
+main->index.js->
+
+// used for session cookies
+
+const session = require('express-session');
+const passport  = require('passport');
+const passportLocal = require('./config/passport-local-strategy')
+
+```
+Now we need to add a middleware which takes session cookies and `encrypt` that.\
+We add it after the `view Engine` setup.
+
+```
+// tell app to use 'session'
+
+app.use(session({
+    name:'codeial',
+    //todo change the secret before deployment in production mode
+    secret:'blahsomething',
+    saveUninitialized: false,
+    resave:false,
+    cookie:{
+        maxAge:(1000*60*100),
+    }
+}))
+
+// tell app to use 'passport'
+
+app.use(passport.initialize());
+
+app.use(passport.session());
+```
 
 
 
-#
-#
-#
-#
-#
-#
-#
-#
-#
-##
-#
-#
-#
-##
-#
-#
-#
-##
-#
-#
-#
-##
-#
-#
-#
-##
-#
-#
-#
-##
-#
-#
-#
-##
-#
-#
-#
-#
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+   .
+  
+  
+
+
+
