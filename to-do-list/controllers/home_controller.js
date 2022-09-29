@@ -10,14 +10,32 @@ module.exports.home = function (req, res) {
     //         posts:  posts
     //     });
     // });
-
+    // console.log('here we go');
     // populate the user of each post
-    Post.find({}).populate('user').exec(function (err, posts) {
-        return res.render('home', {
-            title: "Codeial | Home",
-            posts: posts
-        });
-    })
+    // console.log(Post.find({}).populate('user'))
+
+    //before
+    // Post.find({}).populate('user').exec(function (err, posts) 
+
+    //after -> to show the comments of users
+    // Post.find({}).populate('').populate({'' : '' , populate:{'':'' } } )
+
+    // Post.find({}).populate('user').exec(function (err, posts) { console.log(posts.user) }) -- fixing in stackoverflow
+
+    Post.find({})
+        .populate('user')
+        .populate({
+            path: 'comments',
+            populate: {
+                path: 'user'
+            }
+        })
+        .exec(function (err, posts) {
+            return res.render('home', {
+                title: "Codeial | Home",
+                posts: posts
+            });
+        })
 
 }
 
