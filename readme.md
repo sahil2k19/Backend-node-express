@@ -9,18 +9,6 @@ Partial & Layouts -> Static files -> MongoDB
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## Settings up Directory Structure
 
 Create file
@@ -293,8 +281,8 @@ It will not automatic add to the ejs->other file\
 we need to mention that where to use.
 
 ### For that we use :-
-### `<%-include ('_header'); %>` 
-### `<%-include ('_footer'); %>` 
+#### `<%-include ('_header'); %>` 
+#### `<%-include ('_footer'); %>` 
 
 We just replace these code with whole code of header and footer
 #
@@ -307,14 +295,14 @@ We need to use a library : `Express-ejs-layouts`
 For that we need to install that using command `npm install express-ejs-layouts`\
 After that create a file in `views.ejs` -> `layout.ejs`
 
-### In `main-> index.js` 
+#### In `main-> index.js` 
 ```
 const expressLayouts = require('express-ejs-layouts');
 
 app.use(expressLayouts);
 ```
 
-### In `views-> layout.ejs`
+#### In `views-> layout.ejs`
 ```
 <body>
     <!------------ this is partial------------------->
